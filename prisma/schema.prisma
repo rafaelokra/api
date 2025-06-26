@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Numero {
+  id       Int      @id @default(autoincrement())
+  numero   String   @unique
+  criadoEm DateTime @default(now())
+
+  @@map("numeros")
+}
+
+model Autorizado {
+  id       Int      @id @default(autoincrement())
+  numero   String   @unique
+  criadoEm DateTime @default(now())
+
+  @@map("autorizados")
+}
+
+model Usuario {
+  id           Int       @id @default(autoincrement())
+  nome         String
+  email        String    @unique
+  telefone     String?   @unique
+  chatId       String?   @unique
+  senhaHash    String
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  gastos       Gasto[]
+  receitas     Receita[]
+  metas        Meta[]
+
+  @@map("usuarios")
+}
+
+model Gasto {
+  id        Int      @id @default(autoincrement())
+  valor     Float
+  categoria String
+  usuarioId Int
+  data      DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("gastos")
+}
+
+model Receita {
+  id        Int      @id @default(autoincrement())
+  descricao String
+  valor     Float
+  data      DateTime @default(now())
+  usuarioId Int
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("receitas")
+}
+
+model Meta {
+  id           Int      @id @default(autoincrement())
+  nome         String
+  valorMeta    Float
+  valorAtual   Float    @default(0)
+  categoria    String
+  prazo        DateTime
+  tipo         String
+  descricao    String?
+  usuarioId    Int
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  ativa        Boolean  @default(true)
+  concluida    Boolean  @default(false)
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  @@map("metas")
+}
